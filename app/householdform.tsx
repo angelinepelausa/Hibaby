@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
 import { auth, db } from '../FirebaseConfig';
@@ -17,8 +17,9 @@ const HouseholdForm = () => {
 
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [address, setAddress] = useState('');
-  const [rate, setRate] = useState('');
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const nextForm = params.nextForm as string | undefined;
 
   const toggleService = (service: string) => {
     setSelectedServices(prev =>
@@ -29,7 +30,7 @@ const HouseholdForm = () => {
   };
 
   const handleSubmit = async () => {
-    if (!address || !rate || selectedServices.length === 0) {
+    if (!address || selectedServices.length === 0) {
       Alert.alert('Error', 'Please fill all fields and select at least one service');
       return;
     }
@@ -45,14 +46,13 @@ const HouseholdForm = () => {
         householdDetails: {
           address,
           servicesNeeded: selectedServices,
-          rate,
           updatedAt: serverTimestamp()
         },
         updatedAt: serverTimestamp()
       });
 
-      if (router.params?.nextForm === 'housekeeperform') {
-        router.push('/housekeeperform');
+      if (nextForm) {
+        router.push(`/${nextForm}`);
       } else {
         router.push('/(tabs)');
       }
@@ -113,15 +113,6 @@ const HouseholdForm = () => {
               </TouchableOpacity>
             </View>
           </View>
-
-          <Text style={styles.formtxt}>Please enter your offered rate</Text>
-          <TextInput
-            placeholder="Rate"
-            style={styles.inputcont}
-            value={rate}
-            onChangeText={setRate}
-            keyboardType="numeric"
-          />
 
           <View style={styles.submitcont}>
             <TouchableOpacity onPress={handleSubmit}>

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import React from 'react';
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
@@ -26,7 +26,7 @@ const Continue = () => {
             await updateDoc(userDocRef, {
                 role: role,
                 updatedAt: serverTimestamp()
-            });
+            }, { merge: true });
 
             if (role === 'household') {
                 router.push('/householdform');
@@ -103,14 +103,12 @@ const styles = StyleSheet.create({
         padding: 20,
         paddingTop: '3%',
     },
-
     imageStyle: {
         width: '160%',
         height: '30%',
         marginBottom: -10,
         marginTop: '-40%'
     },
-
     continuetext: {
         marginTop: '15%',
         color: 'black',
@@ -135,6 +133,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontFamily: 'RobotoSlab-Regular',
     }
-})
+});
 
 export default Continue;
