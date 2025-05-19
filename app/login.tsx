@@ -1,234 +1,313 @@
-// Authored by: Jamarcus JanGavril C. Mariano
-// Company: Schlaf Shön
-// Project: Tabangi Na Ko
-// [TNK-5] Login Screen
-// Description: As a user, I want to login to an existing account.
-
-import React, { useState } from 'react'
-import { Text, View, StyleSheet, Image, TextInput } from 'react-native';
-import { useRouter } from 'expo-router'
-import { auth } from '../FirebaseConfig'
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, Image, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Dimensions, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
+import { auth, db } from '../FirebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { MaterialIcons } from '@expo/vector-icons';
 
-const styles = StyleSheet.create ({
-    imageStyle: {
-        width: '100%',
-        height: '35%',
-        paddingBottom: 0,
-        marginBottom: 0,
-    },
-    welcomeTextStyle: {
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: 32,
-        paddingLeft: 70,
-        marginTop: -50,
-    },
-    containerStyle: {
-        backgroundColor: '#F7EDE1',
-        marginTop: 60,
-        paddingBottom: 455,
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-    },
-    textfieldsStyle: {
-        color: 'black',
-        marginTop: 20,
-        marginLeft: 30,
-        marginBottom: 2,
-        fontWeight: 'bold',
-    },
-    emptyContainerStyle: {
-        backgroundColor: '#D9D9D9',
-        padding: 5,
-        paddingRight: 0,
-        marginLeft: 30,
-        marginRight: 30,
-        borderRadius: 15,
-        borderColor: 'black',
-        borderWidth: 1,
-    },
-    forgotTextStyle: {
-        color: '#C98633',
-        fontWeight: 'bold',
-        paddingTop: 10,
-        marginLeft: 250,
-    },
-    loginButtonStyle: {
-        color: 'white',
-        fontSize: 25,
-        fontWeight: 'bold',
-        backgroundColor: '#FFC200',
-        height: '10%',
-        textAlignVertical: 'center',
-        textAlign: 'center',
-        marginTop: 30,
-        marginLeft: 30,
-        marginRight: 30,
-        borderRadius: 15,
-    },
-    flexedLineContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 25,
-        marginLeft: 35,
-        width: '83%',
-    },
-    horizontalLine: {
-        height: 1.5,
-        backgroundColor: 'black',
+const { width, height } = Dimensions.get('window');
+
+const Login = () => {
+    const router = useRouter();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+
+    const validateEmail = (email: string) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
+
+    const checkUserRole = async (userId: string) => {
+        try {
+            const userDocRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userDocRef);
+            
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                return userData.role; 
+            }
+            return null;
+        } catch (error) {
+            console.error("Error checking user role:", error);
+            return null;
+        }
+    };
+
+    const handleLogin = async () => {
+        let isValid = true;
+
+        setEmailError('');
+        setPasswordError('');
+
+        if (!email) {
+            setEmailError('Email is required');
+            isValid = false;
+        } else if (!validateEmail(email)) {
+            setEmailError('Please enter a valid email');
+            isValid = false;
+        }
+
+        if (!password) {
+            setPasswordError('Password is required');
+            isValid = false;
+        } else if (password.length < 6) {
+            setPasswordError('Password must be at least 6 characters');
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        try {
+            setLoading(true);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            const userRole = await checkUserRole(user.uid);
+            
+            if (userRole) {
+                router.replace('/(tabs)');
+            } else {
+                router.replace('/continue');
+            }
+            
+        } catch (error: any) {
+            let errorMessage = 'Login failed. Please try again.';
+
+            switch (error.code) {
+                case 'auth/user-not-found':
+                    errorMessage = 'No account found with this email';
+                    break;
+                case 'auth/wrong-password':
+                    errorMessage = 'Incorrect password';
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = 'Account temporarily disabled due to many failed attempts';
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = 'Invalid email address';
+                    break;
+            }
+
+            Alert.alert('Login Error', errorMessage);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}
+        >
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <View style={styles.content}>
+                    <View style={styles.headerContainer}>
+                        <View style={styles.header}>
+                            <Image
+                                source={require('@/assets/images/TNK_logo.png')}
+                                style={styles.logo}
+                                resizeMode="contain"
+                            />
+                            <Text style={styles.title}>Welcome back to TNK</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.formContainer}>
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Email</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter your email"
+                                placeholderTextColor="#999"
+                                value={email}
+                                onChangeText={(text) => {
+                                    setEmail(text);
+                                    setEmailError('');
+                                }}
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                            />
+                            {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+                        </View>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Password</Text>
+                            <View style={styles.passwordInput}>
+                                <TextInput
+                                    style={styles.passwordTextInput}
+                                    placeholder="Enter your password"
+                                    placeholderTextColor="#999"
+                                    value={password}
+                                    onChangeText={(text) => {
+                                        setPassword(text);
+                                        setPasswordError('');
+                                    }}
+                                    secureTextEntry={!showPassword}
+                                />
+                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                                    <MaterialIcons
+                                        name={showPassword ? 'visibility-off' : 'visibility'}
+                                        size={24}
+                                        color="#666"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                            {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.forgotPasswordContainer}
+                            onPress={() => router.push('/forgot-password')}
+                        >
+                            <Text style={styles.forgotPassword}>Forgot Password?</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.loginButton, loading && styles.disabledButton]}
+                            onPress={handleLogin}
+                            disabled={loading}
+                        >
+                            <Text style={styles.loginButtonText}>
+                                {loading ? 'Logging in...' : 'Login'}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.registerContainer}>
+                            <Text style={styles.registerText}>Don't have an account?</Text>
+                            <TouchableOpacity onPress={() => router.push('/register')}>
+                                <Text style={styles.registerLink}>Register</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
         flex: 1,
-        marginVertical: 10,
+        backgroundColor: '#141414',
     },
-    orLoginWithtext: {
-        marginHorizontal: 10,
-        fontSize: 16,
-        fontWeight: 'bold',
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: 'center',
     },
-    buttonAreaContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
-        marginTop: 20,
-        padding: 10,
-        marginBottom: 15
+    content: {
+        flex: 1,
+        justifyContent: 'space-between',
     },
-    buttonContainer: {
-        backgroundColor: 'black',
-        paddingTop: 10,
-        paddingBottom: 10,
-        paddingLeft: 30,
-        paddingRight: 30,
-        borderRadius: 15,
+    headerContainer: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        paddingBottom: 20,
     },
-    buttonText: {
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: 16,
-        paddingLeft: 10,
-    },
-    googleIcon: {
-        width: 20,
-        height: 20,
-    },
-    buttonRowContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-
-    accountRemContainer: {
-        flexDirection: 'row',
+    header: {
         alignItems: 'center',
         justifyContent: 'center',
-        
     },
-    accountText:{
-        color: 'black',
+    logo: {
+        width: width * 5,
+        height: height * 0.4,
+        marginBottom: 10,
+    },
+    title: {
+        color: 'white',
+        fontSize: 24,
         fontWeight: 'bold',
-        
+        textAlign: 'center',
+    },
+    formContainer: {
+        backgroundColor: '#F7EDE1',
+        borderRadius: 20,
+        padding: 25,
+        width: '100%',
+    },
+    inputContainer: {
+        marginBottom: 15,
+    },
+    label: {
+        color: '#333',
+        fontWeight: '600',
+        marginBottom: 8,
+        fontSize: 14,
+    },
+    input: {
+        backgroundColor: '#FFF',
+        borderRadius: 12,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: '#DDD',
+        fontSize: 14,
+        height: 45,
+    },
+    passwordInput: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFF',
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        borderWidth: 1,
+        borderColor: '#DDD',
+        height: 45,
+    },
+    passwordTextInput: {
+        flex: 1,
+        fontSize: 14,
+        height: 45,
+    },
+    forgotPasswordContainer: {
+        alignSelf: 'flex-end',
+        marginBottom: 15,
+    },
+    forgotPassword: {
+        color: '#C98633',
+        fontWeight: '600',
+        fontSize: 13,
+    },
+    loginButton: {
+        backgroundColor: '#FFC200',
+        height: 45,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 12,
+        marginBottom: 15,
+    },
+    disabledButton: {
+        opacity: 0.7,
+    },
+    loginButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    registerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
     },
     registerText: {
+        color: '#666',
+        fontWeight: '500',
+        fontSize: 13,
+    },
+    registerLink: {
         color: '#C98633',
         fontWeight: 'bold',
-        paddingLeft: 5,
+        marginLeft: 5,
+        fontSize: 13,
+    },
+    errorText: {
+        color: '#FF3B30',
+        fontSize: 12,
+        marginTop: 3,
     },
 });
 
-const Login = () => {
-    // const [email, setEmail] = useState('');
-    // const [password, setPassword] = useState('');
-
-    // const logIn = async () => {
-    //     try {
-    //         const user = await signInWithEmailAndPassword(auth, email, password)
-    //         if (user) router.replace('/(tabs)');
-    //     } catch (error: any) {
-    //         console.log(error)
-    //         alert('Sign in failed: ' + error.message);
-    //     }
-    // }
-
-    const router = useRouter();
-    return (
-        <View className="flex-1 bg-primary">
-            <Image source={require('@/assets/images/TNK_logo.png')} style={styles.imageStyle} />
-        
-            <Text style={styles.welcomeTextStyle}>
-                Welcome back to TNK
-            </Text>
-
-            <View style={styles.containerStyle}>
-                <View>
-                    <Text style={styles.textfieldsStyle}>
-                        Email
-                    </Text>
-                    <View style={styles.emptyContainerStyle}>
-                        <TextInput placeholder="Enter your email" 
-                            // value={email} onChangeText={setEmail} 
-                        />
-                    </View>
-                    <Text style={styles.textfieldsStyle}>
-                        Password
-                    </Text>
-                    <View style={styles.emptyContainerStyle}>
-                        <TextInput placeholder="Enter your password" 
-                            // value={password} onChangeText={setPassword} secureTextEntry 
-                        />
-                    </View>
-                </View>
-                <Text style={styles.forgotTextStyle}>
-                    Forgot Password?
-                </Text>
-
-                <Text 
-                    // onPress={logIn} 
-                    style={styles.loginButtonStyle}
-                    onPress={() => router.push('/(tabs)')}
-                >
-                    Login
-                </Text>
-
-                <View style={styles.flexedLineContainer}>
-                    <View style={styles.horizontalLine}></View>
-                    <Text style={styles.orLoginWithtext}>
-                        Or login with
-                    </Text>
-                    <View style={styles.horizontalLine}></View>
-                </View>
-
-                <View style={styles.buttonAreaContainer}> 
-                    <View style={styles.buttonContainer}>
-                        <View style={styles.buttonRowContainer}>
-                            <Image source={require('@/assets/images/google-symbol.png')} style={styles.googleIcon}/>
-                            <Text style={styles.buttonText}>
-                                Google
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={styles.buttonContainer}>
-                        <View style={styles.buttonRowContainer}>
-                            <Image source={require('@/assets/images/facebook.png')} style={styles.googleIcon}/>
-                            <Text style={styles.buttonText}>
-                                Facebook
-                            </Text>
-                        </View>
-                    </View>
-                </View>
-
-                
-
-                <View style={styles.accountRemContainer}>
-                    <Text style={styles.accountText}>
-                        Don't have an account?
-                    </Text>
-                    <Text onPress={() => router.push('/register')} style={styles.registerText}>
-                        Register
-                    </Text>
-                </View>
-            </View>
-        </View>
-    )
-}
-
-export default Login
+export default Login;

@@ -32,5 +32,10 @@ export default function RootLayout() {
       name="housekeepers/[id]"
       options={{ headerShown: false }}
     />
+
+    <Stack.Screen
+        name="editprofile" 
+        options={{ headerShown: false }}
+      />
     </Stack>;
 }

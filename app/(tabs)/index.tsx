@@ -5,8 +5,11 @@
 // Description: As a user, I want to be able to choose to view Housekeeper candidates and/or Household offers.
 
 import React from 'react';
-import { Text, View, Image, StyleSheet} from "react-native";
+import { Text, View, Image, TouchableOpacity, StyleSheet} from "react-native";
 import { Bell, MoveRight } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+
+
 
 const styles = StyleSheet.create ({
   container: {
@@ -23,6 +26,7 @@ const styles = StyleSheet.create ({
     borderTopRightRadius: 10,
     borderColor: 'black',
     borderWidth: 1
+
   },
   rightSideText: {
     fontWeight: 'bold',
@@ -30,16 +34,16 @@ const styles = StyleSheet.create ({
 });
 
 export default function Index() {
+  const router = useRouter();
   return (
     <View className="flex-1 bg-primary">
       <View>
         <Bell 
           color={'white'}
-          size={26}
+          size={25}
           style={{
-            marginTop: 25,
-            marginRight: 25,
-            alignSelf: 'flex-end'
+            marginLeft: 300,
+            marginTop: 30
           }} 
         />
       </View>
@@ -51,6 +55,7 @@ export default function Index() {
       <View>
         <Text className="text-2xl text-white ml-5 mt-5">Housekeepers</Text>
         <View style={styles.container}>
+        <TouchableOpacity onPress={() => router.push('/housekeepers/HousekeepersDetails')}>
           <Image source={require('@/assets/images/housekeeper_image.png')} style={styles.imageStyle}/>
           <View className="flex items-end">
             <Text className="font-bold pt-1 pr-2">
@@ -66,7 +71,7 @@ export default function Index() {
               </View>
             </Text>
           </View>
-          
+          </TouchableOpacity>   
         </View>
       </View> 
         
@@ -74,6 +79,7 @@ export default function Index() {
       <View>
         <Text className="text-2xl text-white ml-5 mt-3">Households</Text>
         <View style={styles.container}>
+        <TouchableOpacity onPress={() => router.push('/households/HouseholdDetails')}>
           <Image source={require('@/assets/images/household_image.png')} style={styles.imageStyle}/>
           <View className="flex items-end">
             <Text className="font-bold pt-1 pr-2">
@@ -89,6 +95,7 @@ export default function Index() {
               </View>
             </Text>
           </View>
+          </TouchableOpacity>  
         </View>
       </View>
       
