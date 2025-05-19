@@ -12,6 +12,7 @@ const EditProfile = () => {
   const [editPhone, setEditPhone] = useState('');
   const [editBio, setEditBio] = useState('');
   const [editRate, setEditRate] = useState('');
+  const [editHouseholdRate, setEditHouseholdRate] = useState('');
   const [editAddress, setEditAddress] = useState('');
   const [editServicesOffered, setEditServicesOffered] = useState<string[]>([]);
   const [editServicesNeeded, setEditServicesNeeded] = useState<string[]>([]);
@@ -32,13 +33,14 @@ const EditProfile = () => {
         setEditBio(data.bio || '');
         
         if (data.housekeeperDetails) {
-          setEditRate(data.housekeeperDetails.rate?.replace('₱', '').split(' ')[0] || '');
+          setEditRate(data.housekeeperDetails.rate?.replace('₱', '') || '');
           setEditServicesOffered(data.housekeeperDetails.servicesOffered || []);
         }
         
         if (data.householdDetails) {
           setEditAddress(data.householdDetails.address || '');
           setEditServicesNeeded(data.householdDetails.servicesNeeded || []);
+          setEditHouseholdRate(data.householdDetails.offeredRate?.replace('₱', '') || '');
         }
       }
     }
@@ -86,7 +88,8 @@ const EditProfile = () => {
       updates.householdDetails = {
         ...userData.householdDetails,
         address: editAddress,
-        servicesNeeded: editServicesNeeded
+        servicesNeeded: editServicesNeeded,
+        offeredRate: `₱${editHouseholdRate}`
       };
     }
 
@@ -197,6 +200,16 @@ const EditProfile = () => {
               onChangeText={setEditAddress}
               placeholder="Address"
               placeholderTextColor="#999"
+            />
+
+            <Text style={styles.label}>Offered Rate (₱)</Text>
+            <TextInput
+              style={styles.input}
+              value={editHouseholdRate}
+              onChangeText={setEditHouseholdRate}
+              placeholder="Offered Rate"
+              placeholderTextColor="#999"
+              keyboardType="numeric"
             />
 
             <Text style={styles.label}>Services Needed</Text>

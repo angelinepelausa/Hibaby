@@ -27,7 +27,7 @@ const Profile = () => {
           setIsProfileVisibleToHousekeepers(data?.profileVisibleToHousekeepers || false);
         }
       });
-      return unsubscribe; 
+      return unsubscribe;
     }
   }, []);
 
@@ -75,8 +75,8 @@ const Profile = () => {
           </TouchableOpacity>
           <View style={styles.nameAndEdit}>
             <Text style={styles.nameText}>{userData.displayName || `${userData.firstName} ${userData.lastName}`}</Text>
-            <TouchableOpacity 
-              style={styles.editButtonSmall} 
+            <TouchableOpacity
+              style={styles.editButtonSmall}
               onPress={() => router.push('../editprofile')}
             >
               <Edit size={20} color="#F7EDE1" />
@@ -135,7 +135,7 @@ const Profile = () => {
                 <Text style={styles.roleTitle}>Housekeeper Details</Text>
                 <Text style={styles.toggleIcon}>{isHousekeeperVisible ? '▼' : '►'}</Text>
               </TouchableOpacity>
-              
+
               {isHousekeeperVisible && (
                 <View style={styles.roleDetails}>
                   <View style={styles.infoRow}>
@@ -163,12 +163,17 @@ const Profile = () => {
                 <Text style={styles.roleTitle}>Household Details</Text>
                 <Text style={styles.toggleIcon}>{isHouseholdVisible ? '▼' : '►'}</Text>
               </TouchableOpacity>
-              
+
               {isHouseholdVisible && (
                 <View style={styles.roleDetails}>
                   <View style={styles.infoRow}>
                     <Text style={styles.infoLabel}>Address:</Text>
                     <Text style={styles.infoValue}>{userData.householdDetails.address}</Text>
+                  </View>
+
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Rate:</Text>
+                    <Text style={styles.infoValue}>{userData.householdDetails.offeredRate}</Text>
                   </View>
 
                   <View style={styles.infoRow}>
@@ -185,7 +190,7 @@ const Profile = () => {
       </ScrollView>
 
       <View style={styles.logoutButtonContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.logoutButton}
           onPress={() => auth.signOut()}
         >

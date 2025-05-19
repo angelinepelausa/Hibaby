@@ -1,104 +1,95 @@
-// Authored by: Jamarcus JanGavril C. Mariano
-// Company: Schlaf Shön
-// Project: Tabangi Na Ko
-// [TNK-7] Home Tab Screen
-// Description: As a user, I want to be able to choose to view Housekeeper candidates and/or Household offers.
-
 import React from 'react';
-import { Text, View, Image, TouchableOpacity, StyleSheet} from "react-native";
-import { Bell, MoveRight } from 'lucide-react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { MoveRight } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
-
-
-const styles = StyleSheet.create ({
+const styles = StyleSheet.create({
   container: {
-    paddingBottom: 10,
-    backgroundColor: '#F7EDE1',
-    marginLeft: 20,
-    width: '90.3%',
-    borderRadius: 11,
+    flex: 1,
+    backgroundColor: '#020D19',
+    paddingHorizontal: 20,
   },
-  imageStyle: {
-    width: '100%', 
-    height: 200,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    borderColor: 'black',
-    borderWidth: 1
-
+  titleContainer: {
+    marginTop: 30,
+    marginBottom: 20,
   },
-  rightSideText: {
+  mainTitle: {
+    color: 'white',
+    fontSize: 40,
     fontWeight: 'bold',
-  }
+    lineHeight: 45,
+  },
+  sectionTitle: {
+    color: 'white',
+    fontSize: 24,
+    marginBottom: 10,
+  },
+  cardContainer: {
+    backgroundColor: '#F7EDE1',
+    borderRadius: 11,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  cardImage: {
+    width: '100%',
+    height: 180,
+  },
+  cardFooter: {
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  cardText: {
+    color: 'black',
+    fontWeight: 'bold',
+    marginRight: 5,
+  },
 });
 
 export default function Index() {
   const router = useRouter();
+  
   return (
-    <View className="flex-1 bg-primary">
-      <View>
-        <Bell 
-          color={'white'}
-          size={25}
-          style={{
-            marginLeft: 300,
-            marginTop: 30
-          }} 
-        />
-      </View>
-      <View>
-        <Text className="text-5xl text-white ml-5 font-bold">Connect and</Text>
-        <Text className="text-5xl text-white ml-5 font-bold">Stay Clean!</Text>
+    <View style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Text style={styles.mainTitle}>Connect and</Text>
+        <Text style={styles.mainTitle}>Stay Clean!</Text>
       </View>
 
       <View>
-        <Text className="text-2xl text-white ml-5 mt-5">Housekeepers</Text>
-        <View style={styles.container}>
-        <TouchableOpacity onPress={() => router.push('/housekeepers/HousekeepersDetails')}>
-          <Image source={require('@/assets/images/housekeeper_image.png')} style={styles.imageStyle}/>
-          <View className="flex items-end">
-            <Text className="font-bold pt-1 pr-2">
-              View Candidates
-              <View className="flex items-end">
-                <MoveRight 
-                  color={'black'}
-                  size={12}
-                  style={{
-                    marginLeft: 2
-                  }} 
-                />
-              </View>
-            </Text>
+        <Text style={styles.sectionTitle}>Housekeepers</Text>
+        <TouchableOpacity 
+          style={styles.cardContainer}
+          onPress={() => router.push('/housekeepers/HousekeepersDetails')}
+        >
+          <Image 
+            source={require('@/assets/images/housekeeper_image.png')} 
+            style={styles.cardImage}
+          />
+          <View style={styles.cardFooter}>
+            <Text style={styles.cardText}>View Candidates</Text>
+            <MoveRight color={'black'} size={12} />
           </View>
-          </TouchableOpacity>   
-        </View>
+        </TouchableOpacity>   
       </View> 
-        
       
       <View>
-        <Text className="text-2xl text-white ml-5 mt-3">Households</Text>
-        <View style={styles.container}>
-        <TouchableOpacity onPress={() => router.push('/households/HouseholdDetails')}>
-          <Image source={require('@/assets/images/household_image.png')} style={styles.imageStyle}/>
-          <View className="flex items-end">
-            <Text className="font-bold pt-1 pr-2">
-              View Offers
-              <View className="flex items-end">
-                <MoveRight 
-                  color={'black'}
-                  size={12}
-                  style={{
-                    marginLeft: 2
-                  }} 
-                />
-              </View>
-            </Text>
+        <Text style={styles.sectionTitle}>Households</Text>
+        <TouchableOpacity 
+          style={styles.cardContainer}
+          onPress={() => router.push('/households/HouseholdDetails')}
+        >
+          <Image 
+            source={require('@/assets/images/household_image.png')} 
+            style={styles.cardImage}
+          />
+          <View style={styles.cardFooter}>
+            <Text style={styles.cardText}>View Offers</Text>
+            <MoveRight color={'black'} size={12} />
           </View>
-          </TouchableOpacity>  
-        </View>
+        </TouchableOpacity>  
       </View>
-      
     </View>
   );
 }

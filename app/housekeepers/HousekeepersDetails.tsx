@@ -1,406 +1,230 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
-import { Bell } from 'lucide-react-native';
 import { useFonts } from 'expo-font'; 
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../FirebaseConfig';
 
 const HousekeepersDetails = () => {
   const [fontsLoaded] = useFonts({
     'RobotoSlab-Medium': require('@/assets/fonts/RobotoSlab-Medium.ttf'),
   });
+  const [housekeepers, setHousekeepers] = useState<any[]>([]);
 
-    return (
-      <>
-            <Stack.Screen
-              options={{
-                title: '',
-                headerStyle: { backgroundColor: '#020D19' },
-                headerTintColor: 'white',
-                headerTitleStyle: { fontWeight: 'bold' },
-                headerRight: () => (
-                  <Bell
-                    color={'white'}
-                    size={24}
-                    style={{ marginRight: 15 }}
-                    onPress={() => {}}
-                  />
-                ),
-              }}
-            />
-            <View style={{ flex: 1, backgroundColor: '#020D19' }}>
-              <View style={{ marginTop: 30 }}>
-                <Text style={styles.textFive}>Housekeepers</Text>
-              </View>
-      
-              <View style={styles.hcontainer}>
-
-                <View style={styles.starContainer}>
-                  <Image source={require('@/assets/images/star.png')} style={styles.sstyle} />
-                  <Text style={styles.textSix}>
-                    4.8(53)
-                  </Text>
-                </View>
-
-                <View style={styles.detailscontainer}>
-                  <Image source={require('@/assets/images/kittens.jpg')} style={styles.istyle} />
-                  <View style={styles.housedetails}>
-                    <Text style={styles.textTwo}>
-                      Name: Mr. Kittens
-                    </Text>
-      
-                    <View style={styles.reqContainer}>
-                      <Text style={styles.textTwo}>
-                        Service/s:
-                      </Text>
-      
-                      <View style={styles.typesContainer}>
-                        <View style={styles.buttonDStyle}>
-                          <Text style={styles.textThree}>
-                            Pets
-                          </Text>
-                        </View>
-                        <View style={styles.buttonDStyle}>
-                          <Text style={styles.textThree}>
-                            Errands
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-      
-                  <View style={styles.ratesRow}>
-                    <Text style={styles.textTwo}>
-                      Rates:
-                    </Text>
-                    <Text style={styles.textFour}>
-                      5,000.00 /month
-                    </Text>
-                  </View>
-      
-                  <View style={styles.soloRate}>
-                    <Text style={styles.textFour}>
-                      400.00 /service
-                    </Text>
-                  </View>
-      
-                  </View>
-                </View>
-      
-                <View style={styles.buttonsContainer}>
-                  <View style={styles.rowContainer}>
-                    <View style={styles.buttonAStyle}>
-                      <Text style={styles.textOne}>
-                        View User Profile
-                      </Text>
-                    </View>
-      
-                    <View style={styles.buttonBStyle}>
-                      <Text style={styles.textOne}>
-                        Hire
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.buttonCStyle}>
-                    <Text style={styles.textOne}>
-                      Message
-                    </Text>
-                  </View>
-                </View>
-              </View>
-      
-              <View style={styles.hcontainer}>
-
-              <View style={styles.starContainer}>
-                <Image source={require('@/assets/images/star.png')} style={styles.sstyle} />
-                <Text style={styles.textSix}>
-                  4.5(20)
-                </Text>
-              </View>
-
-                <View style={styles.detailscontainer}>
-                  <Image source={require('@/assets/images/sarah.jpg')} style={styles.istyle} />
-                  <View style={styles.housedetails}>
-                    <Text style={styles.textTwo}>
-                      Name: Sarah T. Nanim
-                    </Text>
-      
-                    <View style={styles.reqContainer}>
-                      <Text style={styles.textTwo}>
-                        Service/s:
-                      </Text>
-      
-                      <View style={styles.typesContainer}>
-                        <View style={styles.buttonDStyle}>
-                          <Text style={styles.textThree}>
-                            Plants
-                          </Text>
-                        </View>
-                        <View style={styles.buttonDStyle}>
-                          <Text style={styles.textThree}>
-                            Errands
-                          </Text>
-                        </View>
-                        <View style={styles.buttonDStyle}>
-                          <Text style={styles.textThree}>
-                            Odd Jobs
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-      
-                  <View style={styles.ratesRow}>
-                    <Text style={styles.textTwo}>
-                      Rates:
-                    </Text>
-                    <Text style={styles.textFour}>
-                      2,500.00 /month
-                    </Text>
-                  </View>
-      
-                  <View style={styles.soloRate}>
-                    <Text style={styles.textFour}>
-                      150.00 /service
-                    </Text>
-                  </View>
-      
-                  </View>
-                </View>
-      
-                <View style={styles.buttonsContainer}>
-                  <View style={styles.rowContainer}>
-                    <View style={styles.buttonAStyle}>
-                      <Text style={styles.textOne}>
-                        View User Profile
-                      </Text>
-                    </View>
-      
-                    <View style={styles.buttonBStyle}>
-                      <Text style={styles.textOne}>
-                        Hire
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.buttonCStyle}>
-                    <Text style={styles.textOne}>
-                      Message
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.hcontainer}>
-              
-              <View style={styles.starContainer}>
-                <Image source={require('@/assets/images/star.png')} style={styles.sstyle} />
-                <Text style={styles.textSix}>
-                  3.7(87)
-                </Text>
-              </View>
-
-                <View style={styles.detailscontainer}>
-                  <Image source={require('@/assets/images/karen.jpg')} style={styles.istyle} />
-                  <View style={styles.housedetails}>
-                    <Text style={styles.textTwo}>
-                      Name: Karen Marites
-                    </Text>
-      
-                    <View style={styles.reqContainer}>
-                      <Text style={styles.textTwo}>
-                        Service/s:
-                      </Text>
-      
-                      <View style={styles.typesContainer}>
-                        <View style={styles.buttonDStyle}>
-                          <Text style={styles.textThree}>
-                            Cleaning
-                          </Text>
-                        </View>
-                        <View style={styles.buttonDStyle}>
-                          <Text style={styles.textThree}>
-                            Errands
-                          </Text>
-                        </View>
-                        <View style={styles.buttonDStyle}>
-                          <Text style={styles.textThree}>
-                            Odd Jobs
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-      
-                  <View style={styles.ratesRow}>
-                    <Text style={styles.textTwo}>
-                      Rates:
-                    </Text>
-                    <Text style={styles.textFour}>
-                      5,000.00 /month
-                    </Text>
-                  </View>
-      
-                  <View style={styles.soloRate}>
-                    <Text style={styles.textFour}>
-                      450.00 /service
-                    </Text>
-                  </View>
-      
-                  </View>
-                </View>
-      
-                <View style={styles.buttonsContainer}>
-                  <View style={styles.rowContainer}>
-                    <View style={styles.buttonAStyle}>
-                      <Text style={styles.textOne}>
-                        View User Profile
-                      </Text>
-                    </View>
-      
-                    <View style={styles.buttonBStyle}>
-                      <Text style={styles.textOne}>
-                        Hire
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.buttonCStyle}>
-                    <Text style={styles.textOne}>
-                      Message
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-            </View>
-          </>
+  useEffect(() => {
+    const fetchHousekeepers = async () => {
+      try {
+        const q = query(
+          collection(db, "users"), 
+          where("profileVisibleToHouseholds", "==", true),
+          where("role", "in", ["housekeeper", "housekeeper and household"])
         );
-      };
-      
-      const styles = StyleSheet.create({
-        hcontainer: {
-          backgroundColor: '#F7EDE1',
-          height: '32%',
-          width: '90%',
-          borderRadius: 11,
-          margin: '5%',
-          marginBottom: '-2%',
-          padding: 20,
-          paddingTop: '3%'
-        },
-        textOne: {
-          color: 'white',
-          fontSize: 9,
-          textAlign: 'center',
-          fontFamily: 'RobotoSlab-Medium', 
-        },
-        textTwo: {
-          color: 'black',
-          fontSize: 9,
-          textAlign: 'left',
-          fontFamily: 'RobotoSlab-Medium',
-          marginBottom: '9%',
-        },
-        textThree: {
-          color: 'black',
-          fontSize: 7,
-          textAlign: 'center',
-          fontFamily: 'RobotoSlab-Medium',
-          marginBottom: '6%',
-        },
-        textFour: {
-          color: 'black',
-          fontSize: 10,
-          textAlign: 'left',
-          fontFamily: 'RobotoSlab-Medium',
-          marginLeft: '10%'
-        },
-        textFive: {
-          color: 'white',
-          fontSize: 30,
-          fontFamily: 'RobotoSlab-Medium',
-          marginLeft: '5%'
-        },
-        textSix: {
-          color: 'black',
-          fontSize: 7,
-          textAlign: 'left',
-          fontFamily: 'RobotoSlab-Medium',
-        },
-        detailscontainer: {
-          width: '100%',
-          height: '60%',
-          marginBottom: '5%',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        },
-        buttonsContainer: {},
-        rowContainer: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          marginBottom: '2%',
-        },
-        buttonAStyle: {
-          backgroundColor: '#020D19',
-          borderRadius: 11,
-          width: '40%',
-          padding: '2%',
-        },
-        buttonBStyle: {
-          backgroundColor: '#A25D67',
-          borderRadius: 11,
-          width: '25%',
-          padding: '2%',
-        },
-        buttonCStyle: {
-          backgroundColor: '#020D19',
-          borderRadius: 11,
-          width: '25%',
-          marginLeft: '75%',
-          padding: '2%',
-        },
-        buttonDStyle: {
-          backgroundColor: '#D9D9D9',
-          borderRadius: 11,
-          width: '25%',
-          height: 13,
-          marginRight: 3
-        },
-        buttonEStyle: {
-          backgroundColor: '#D9D9D9',
-          borderRadius: 11,
-          width: '32.5%',
-          height: 13
-        },
-        istyle: {
-          height: '100%',
-          width: '40%',
-          marginRight: '2%'
-        },
-        housedetails: {
-          marginRight: '15%',
-        },
-        reqContainer: {
-          flexDirection: 'row',
-        },
-        typesContainer: {
-          flexDirection: 'row',
-          width: '70%',
-        },
-        soloReq: {
-          marginLeft: '18%',
-          marginTop: '-8%',
-        },
-        ratesRow: {
-          flexDirection: 'row',
-        },
-        soloRate: {
-          marginLeft: '13%',
-          marginTop: '-8%',
-        },
-        starContainer: {
-          flexDirection: 'row',
-          marginLeft: '87%',
-        },
-        sstyle: {
-          height: 10,
-          width: 10,
-        },
-      });
-      
-export default HousekeepersDetails
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data(),
+          housekeeperDetails: doc.data().housekeeperDetails || {}
+        }));
+        setHousekeepers(data);
+      } catch (error) {
+        console.error("Error fetching housekeepers:", error);
+      }
+    };
+
+    fetchHousekeepers();
+  }, []);
+
+  if (!fontsLoaded) {
+    return null; 
+  }
+
+  const renderItem = ({ item }: { item: any }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Image 
+          source={item.photoURL ? { uri: item.photoURL } : require('@/assets/images/default-profile.png')} 
+          style={styles.profileImage} 
+        />
+        <View style={styles.cardDetails}>
+          <Text style={styles.nameText}>Name: {item.firstName} {item.lastName}</Text>
+          
+          <Text style={styles.sectionTitle}>Service/s:</Text>
+          <View style={styles.servicesContainer}>
+            {item.housekeeperDetails?.servicesOffered?.map((service: string, index: number) => (
+              <View key={index} style={styles.servicePill}>
+                <Text style={styles.serviceText}>{service}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Rates:</Text>
+            <Text style={styles.infoValue}>{item.housekeeperDetails?.rate || 'Not specified'}</Text>
+          </View>
+        </View>
+      </View>
+
+      <Text style={styles.infoValue}>{item.bio || 'No bio provided'}</Text>
+
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.profileButton}>
+          <Text style={styles.buttonText}>View User Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Text style={styles.buttonText}>Hire</Text>
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity style={styles.messageButton}>
+        <Text style={styles.buttonText}>Message</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <>
+      <Stack.Screen
+        options={{
+          title: '',
+          headerStyle: { backgroundColor: '#020D19' },
+          headerTintColor: 'white',
+        }}
+      />
+      <View style={styles.container}>
+        <View style={styles.contentContainer}>
+          <Text style={styles.title}>Housekeepers</Text>
+          {housekeepers.length > 0 ? (
+            <FlatList
+              data={housekeepers}
+              renderItem={renderItem}
+              keyExtractor={item => item.id}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            />
+          ) : (
+            <Text style={styles.noResultsText}>No housekeepers available at the moment</Text>
+          )}
+        </View>
+      </View>
+    </>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#020D19',
+  },
+  contentContainer: {
+    padding: 20,
+  },
+  title: {
+    color: 'white',
+    fontSize: 30,
+    fontFamily: 'RobotoSlab-Medium',
+    marginBottom: 20,
+  },
+  noResultsText: {
+    color: 'white',
+    textAlign: 'center',
+    marginTop: 20,
+    fontFamily: 'RobotoSlab-Medium',
+  },
+  card: {
+    backgroundColor: '#F7EDE1',
+    borderRadius: 11,
+    marginBottom: 20,
+    padding: 15,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    marginBottom: 15,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginRight: 15,
+  },
+  cardDetails: {
+    flex: 1,
+  },
+  nameText: {
+    color: 'black',
+    fontSize: 14,
+    fontFamily: 'RobotoSlab-Medium',
+    marginBottom: 10,
+  },
+  sectionTitle: {
+    color: 'black',
+    fontSize: 12,
+    fontFamily: 'RobotoSlab-Medium',
+    marginBottom: 5,
+  },
+  servicesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 10,
+  },
+  servicePill: {
+    backgroundColor: '#D9D9D9',
+    borderRadius: 11,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginRight: 5,
+    marginBottom: 5,
+  },
+  serviceText: {
+    color: 'black',
+    fontSize: 10,
+    fontFamily: 'RobotoSlab-Medium',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    marginBottom: 5,
+  },
+  infoLabel: {
+    color: 'black',
+    fontSize: 12,
+    fontFamily: 'RobotoSlab-Medium',
+    width: 60,
+  },
+  infoValue: {
+    color: 'black',
+    fontSize: 12,
+    fontFamily: 'RobotoSlab-Medium',
+    flex: 1,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  profileButton: {
+    backgroundColor: '#020D19',
+    borderRadius: 11,
+    padding: 10,
+    flex: 1,
+    marginRight: 10,
+  },
+  actionButton: {
+    backgroundColor: '#A25D67',
+    borderRadius: 11,
+    padding: 10,
+    width: 80,
+  },
+  messageButton: {
+    backgroundColor: '#020D19',
+    borderRadius: 11,
+    padding: 10,
+    alignSelf: 'flex-end',
+    width: 100,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 12,
+    fontFamily: 'RobotoSlab-Medium',
+    textAlign: 'center',
+  },
+});
+
+export default HousekeepersDetails;
