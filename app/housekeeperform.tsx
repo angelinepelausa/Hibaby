@@ -5,6 +5,8 @@ import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
 import { auth, db } from '../FirebaseConfig';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
 
 const offerList = ['Cleaning', 'Odd Jobs', 'Errands', 'Gardening', 'Pool Cleaning'];
 
@@ -18,6 +20,52 @@ const HousekeeperForm = () => {
     const [selectedoffers, setSelectedoffers] = useState<string[]>([]);
     const [rate, setRate] = useState('');
     const router = useRouter();
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+    const pickAndUploadImage = async () => {
+        // Ask permission
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permissionResult.granted) {
+            Alert.alert('Permission Denied', 'Permission to access media is required!');
+            return;
+        }
+
+        // Launch image picker
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.cancelled && result.assets && result.assets.length > 0) {
+            const image = result.assets[0];
+            const formData = new FormData();
+            formData.append('file', {
+                uri: image.uri,
+                name: 'upload.jpg',
+                type: 'image/jpeg',
+            } as any);
+            formData.append('upload_preset', 'Tabangi'); // replace with your preset
+
+            try {
+                const response = await axios.post(
+                    'https://api.cloudinary.com/v1_1/dgdzmrhc4/image/upload', // replace with your cloud name
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                );
+
+                setImageUrl(response.data.secure_url); // Save uploaded image URL
+                Alert.alert('Upload Successful', 'Image uploaded.');
+            } catch (error) {
+                console.error(error);
+                Alert.alert('Upload Failed', 'Could not upload image.');
+            }
+        }
+    };
 
     const toggleoffer = (offer: string) => {
         setSelectedoffers(prev =>
@@ -44,6 +92,7 @@ const HousekeeperForm = () => {
                 housekeeperDetails: {
                     rate: `₱${rate}`,
                     servicesOffered: selectedoffers,
+                    image: imageUrl,
                     updatedAt: serverTimestamp()
                 },
                 updatedAt: serverTimestamp()
@@ -84,6 +133,7 @@ const HousekeeperForm = () => {
                         keyboardType="numeric"
                     />
 
+                <View style={styles.row}>
                     <View style={styles.offersSection}>
                         <Text style={styles.offerstxt}>Services Offered:</Text>
                         {offerList.map(offer => (
@@ -100,15 +150,27 @@ const HousekeeperForm = () => {
                         ))}
                     </View>
 
-                    <View style={styles.submitcont}>
-                        <TouchableOpacity onPress={handleSubmit}>
-                            <Text style={styles.submittxt}>
-                                Submit
-                            </Text>
+                    <View style={styles.uploadContainer}>
+                        <Text style={styles.uploadLabel}>Housekeeper</Text>
+                        <TouchableOpacity style={styles.uploadBox} onPress={pickAndUploadImage}>
+                            {imageUrl ? (
+                                <Image source={{ uri: imageUrl }} style={{ width: 60, height: 60, borderRadius: 10 }} />
+                            ) : (
+                                <Text style={styles.uploadIcon}>⬆</Text>
+                            )}
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                <View style={styles.submitcont}>
+                    <TouchableOpacity onPress={handleSubmit}>
+                        <Text style={styles.submittxt}>
+                            Submit
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
+        </View >
         </>
     );
 };

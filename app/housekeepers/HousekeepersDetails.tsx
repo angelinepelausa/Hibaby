@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
-import { useFonts } from 'expo-font'; 
+import { useFonts } from 'expo-font';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../FirebaseConfig';
 
@@ -15,13 +15,13 @@ const HousekeepersDetails = () => {
     const fetchHousekeepers = async () => {
       try {
         const q = query(
-          collection(db, "users"), 
+          collection(db, "users"),
           where("profileVisibleToHouseholds", "==", true),
           where("role", "in", ["housekeeper", "housekeeper and household"])
         );
         const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map(doc => ({ 
-          id: doc.id, 
+        const data = querySnapshot.docs.map(doc => ({
+          id: doc.id,
           ...doc.data(),
           housekeeperDetails: doc.data().housekeeperDetails || {}
         }));
@@ -35,19 +35,23 @@ const HousekeepersDetails = () => {
   }, []);
 
   if (!fontsLoaded) {
-    return null; 
+    return null;
   }
 
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Image 
-          source={item.photoURL ? { uri: item.photoURL } : require('@/assets/images/default-profile.png')} 
-          style={styles.profileImage} 
+        <Image
+          source={
+            item.housekeeperDetails?.image
+              ? { uri: item.housekeeperDetails.image }
+              : require('@/assets/images/default-house.png')
+          }
+          style={styles.profileImage}
         />
         <View style={styles.cardDetails}>
           <Text style={styles.nameText}>Name: {item.firstName} {item.lastName}</Text>
-          
+
           <Text style={styles.sectionTitle}>Service/s:</Text>
           <View style={styles.servicesContainer}>
             {item.housekeeperDetails?.servicesOffered?.map((service: string, index: number) => (
@@ -72,7 +76,10 @@ const HousekeepersDetails = () => {
           <Text style={styles.buttonText}>Hire</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.messageButton}>
+      <TouchableOpacity
+        style={styles.messageButton}
+        onPress={() => router.push(/messages/${ item.id })}
+      >
         <Text style={styles.buttonText}>Message</Text>
       </TouchableOpacity>
     </View>

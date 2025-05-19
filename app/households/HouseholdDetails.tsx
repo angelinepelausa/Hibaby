@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
-import { useFonts } from 'expo-font'; 
+import { useFonts } from 'expo-font';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../FirebaseConfig';
 
@@ -15,13 +15,13 @@ const HouseholdDetails = () => {
     const fetchHouseholds = async () => {
       try {
         const q = query(
-          collection(db, "users"), 
+          collection(db, "users"),
           where("profileVisibleToHousekeepers", "==", true),
           where("role", "in", ["household", "housekeeper and household"])
         );
         const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map(doc => ({ 
-          id: doc.id, 
+        const data = querySnapshot.docs.map(doc => ({
+          id: doc.id,
           ...doc.data(),
           householdDetails: doc.data().householdDetails || {}
         }));
@@ -35,19 +35,23 @@ const HouseholdDetails = () => {
   }, []);
 
   if (!fontsLoaded) {
-    return null; 
+    return null;
   }
 
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Image 
-          source={item.photoURL ? { uri: item.photoURL } : require('@/assets/images/default-house.png')} 
-          style={styles.profileImage} 
+        <Image
+          source={
+            item.householdDetails?.image
+              ? { uri: item.householdDetails.image }
+              : require('@/assets/images/default-house.png')
+          }
+          style={styles.profileImage}
         />
         <View style={styles.cardDetails}>
           <Text style={styles.nameText}>Owner: {item.firstName} {item.lastName}</Text>
-          
+
           <Text style={styles.sectionTitle}>Required:</Text>
           <View style={styles.servicesContainer}>
             {item.householdDetails?.servicesNeeded?.map((service: string, index: number) => (
@@ -77,7 +81,10 @@ const HouseholdDetails = () => {
           <Text style={styles.buttonText}>Apply</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.messageButton}>
+      <TouchableOpacity
+        style={styles.messageButton}
+        onPress={() => router.push(/messages/${ item.id })}
+      >
         <Text style={styles.buttonText}>Message</Text>
       </TouchableOpacity>
     </View>
@@ -201,7 +208,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 15,
   },
-    profileButton: {
+  profileButton: {
     backgroundColor: '#020D19',
     borderRadius: 20,
     padding: 10,
