@@ -192,7 +192,14 @@ const Profile = () => {
       <View style={styles.logoutButtonContainer}>
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={() => auth.signOut()}
+          onPress={async () => {
+            try {
+              await auth.signOut();
+              router.replace('/login'); // Adjust this path to your actual login route
+            } catch (error) {
+              console.error('Error signing out:', error);
+            }
+          }}
         >
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>

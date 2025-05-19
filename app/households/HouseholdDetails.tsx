@@ -69,8 +69,6 @@ const HouseholdDetails = () => {
         </View>
       </View>
 
-      <Text style={styles.infoValue}>{item.bio || 'No additional info'}</Text>
-
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.profileButton}>
           <Text style={styles.buttonText}>View User Profile</Text>
@@ -203,25 +201,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 15,
   },
-  profileButton: {
+    profileButton: {
     backgroundColor: '#020D19',
-    borderRadius: 11,
+    borderRadius: 20,
     padding: 10,
-    flex: 1,
+    width: '50%',
     marginRight: 10,
   },
   actionButton: {
     backgroundColor: '#A25D67',
-    borderRadius: 11,
+    borderRadius: 20,
     padding: 10,
-    width: 80,
+    width: '35%',
   },
   messageButton: {
     backgroundColor: '#020D19',
-    borderRadius: 11,
+    borderRadius: 20,
     padding: 10,
     alignSelf: 'flex-end',
-    width: 100,
+    width: '35%',
     marginTop: 10,
   },
   buttonText: {
