@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../FirebaseConfig';
@@ -10,6 +10,7 @@ const HousekeepersDetails = () => {
     'RobotoSlab-Medium': require('@/assets/fonts/RobotoSlab-Medium.ttf'),
   });
   const [housekeepers, setHousekeepers] = useState<any[]>([]);
+  const router = useRouter(); // Initialize the router
 
   useEffect(() => {
     const fetchHousekeepers = async () => {
@@ -69,14 +70,20 @@ const HousekeepersDetails = () => {
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.profileButton}>
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => router.push(`/visitprofile`)}
+        >
           <Text style={styles.buttonText}>View User Profile</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
           <Text style={styles.buttonText}>Hire</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.messageButton}>
+      <TouchableOpacity
+        style={styles.messageButton}
+        onPress={() => router.push(`/messages/${item.id}`)}
+      >
         <Text style={styles.buttonText}>Message</Text>
       </TouchableOpacity>
     </View>
