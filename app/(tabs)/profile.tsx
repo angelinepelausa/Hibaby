@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Image, Alert } from 'react-native';
 import { User, Edit } from 'lucide-react-native';
 import { auth, db } from '../../FirebaseConfig';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
 
 const Profile = () => {
   const router = useRouter();
@@ -12,9 +14,67 @@ const Profile = () => {
   const [isHouseholdVisible, setIsHouseholdVisible] = useState(false);
   const [isProfileVisibleToHouseholds, setIsProfileVisibleToHouseholds] = useState(false);
   const [isProfileVisibleToHousekeepers, setIsProfileVisibleToHousekeepers] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const isHousekeeper = userData?.role === 'housekeeper' || userData?.role === 'housekeeper and household';
   const isHousehold = userData?.role === 'household' || userData?.role === 'housekeeper and household';
+
+  const handleImagePick = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert("Permission required", "Camera roll permission is required to upload a photo.");
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!pickerResult.canceled && pickerResult.assets?.[0]?.uri) {
+        const imageUri = pickerResult.assets[0].uri;
+        await uploadToCloudinary(imageUri);
+      }
+    } catch (error) {
+      console.error("Image picking error:", error);
+    }
+  };
+
+  const uploadToCloudinary = async (imageUri: string) => {
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: 'profile.jpg',
+      } as any); // Workaround for RN FormData typing
+      formData.append('upload_preset', 'Tabangi'); // replace
+      formData.append('cloud_name', 'dgdzmrhc4'); // replace
+
+      const res = await axios.post('https://api.cloudinary.com/v1_1/dgdzmrhc4/image/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      const imageUrl = res.data.secure_url;
+
+      if (auth.currentUser) {
+        await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+          profileImageUrl: imageUrl,
+        });
+      }
+
+      Alert.alert('Success', 'Profile image updated.');
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      Alert.alert("Upload Failed", "Could not upload image.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const fetchUserData = useCallback(() => {
     if (auth.currentUser) {
@@ -70,8 +130,19 @@ const Profile = () => {
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.profileHeader}>
-          <TouchableOpacity style={styles.profileImageContainer}>
-            <User size={80} color="#F7EDE1" />
+          <TouchableOpacity
+            style={styles.profileImageContainer}
+            onPress={handleImagePick}
+            disabled={uploading}
+          >
+            {userData.profileImageUrl ? (
+              <Image
+                source={{ uri: userData.profileImageUrl }}
+                style={{ width: 120, height: 120, borderRadius: 60 }}
+              />
+            ) : (
+              <User size={80} color="#F7EDE1" />
+            )}
           </TouchableOpacity>
           <View style={styles.nameAndEdit}>
             <Text style={styles.nameText}>{userData.displayName || `${userData.firstName} ${userData.lastName}`}</Text>

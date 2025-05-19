@@ -81,10 +81,7 @@ const HouseholdDetails = () => {
           <Text style={styles.buttonText}>Apply</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={styles.messageButton}
-        onPress={() => router.push(/messages/${ item.id })}
-      >
+      <TouchableOpacity style={styles.messageButton}>
         <Text style={styles.buttonText}>Message</Text>
       </TouchableOpacity>
     </View>
