@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E2D3D',
     borderRadius: 15,
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   infoRow: {
     flexDirection: 'row',

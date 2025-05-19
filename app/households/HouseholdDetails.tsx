@@ -77,7 +77,10 @@ const HouseholdDetails = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.profileButton}
-          onPress={() => router.push(`/visitprofile`)}
+          onPress={() => router.push({
+            pathname: '/visitprofile',
+            params: { userId: item.id }
+          })}
         >
           <Text style={styles.buttonText}>View User Profile</Text>
         </TouchableOpacity>
